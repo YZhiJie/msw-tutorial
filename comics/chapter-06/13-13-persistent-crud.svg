@@ -1,0 +1,79 @@
+<svg viewBox="0 0 1200 840" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif">
+  <title>第 13 话｜会记事的驿站：假数据库 CRUD</title>
+  <desc>localStorage 做成假数据库，增删改查跨刷新不丢；POST 201、冲突 409、非法 422 全配齐。</desc>
+  <defs>
+    <linearGradient id="hdr-13" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4338CA"/>
+      <stop offset="1" stop-color="#6366F1"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="1200" height="840" rx="0" fill="#F8FAFC" stroke="none" stroke-width="0" opacity="1"/>
+  <rect x="0" y="0" width="1200" height="118" fill="url(#hdr-13)"/>
+  <circle cx="1130" cy="-40" r="120" fill="#ffffff" opacity=".07"/>
+  <circle cx="60" cy="140" r="90" fill="#6366F1" opacity=".05"/>
+  <text x="48" y="52" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="24" font-weight="700" fill="#C7D2FE" text-anchor="start" opacity="1">第 13 话</text>
+  <text x="48" y="96" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="38" font-weight="800" fill="#FFFFFF" text-anchor="start" opacity="1">会记事的驿站：假数据库 CRUD</text>
+  <g transform="translate(940,30)">
+    <rect width="212" height="58" rx="29" fill="#FFFFFF" opacity=".16"/>
+    <text x="106" y="37" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="19" font-weight="700" fill="#fff" text-anchor="middle" opacity="1">第 6 章 · 高级特性</text>
+  </g>
+  
+      <rect x="420" y="200" width="360" height="260" rx="22" fill="#0F172A" stroke="#334155" stroke-width="3" opacity="1"/>
+      <ellipse cx="600" cy="250" rx="150" ry="34" fill="#1E293B"  opacity="1"/>
+      <rect x="470" y="250" width="260" height="160" rx="10" fill="#1E293B" stroke="#475569" stroke-width="2" opacity="1"/>
+      <ellipse cx="600" cy="410" rx="150" ry="34" fill="#334155"  opacity="1"/>
+      <text x="600" y="330" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="30" font-weight="900" fill="#7DD3FC" text-anchor="middle" opacity="1">MockDb</text>
+      <text x="600" y="368" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="16" font-weight="400" fill="#94A3B8" text-anchor="middle" opacity="1">users × 24 · posts × 48</text>
+      <g><rect x="520" y="470" width="349" height="32" rx="16" fill="#1E293B" stroke="none" stroke-width="0" opacity="1"/><text x="533" y="492" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="17" font-weight="700" fill="#7DD3FC" text-anchor="start" opacity="1">localStorage: db:v1</text></g>
+      <g transform="translate(170,520) scale(1)">
+    <ellipse cx="0" cy="150" rx="58" ry="12" fill="#0F172A" opacity=".08"/>
+    <rect x="-34" y="70" width="68" height="74" rx="22" fill="#6366F1"/>
+    <rect x="-12" y="72" width="24" height="30" rx="8" fill="#fff" opacity=".9"/>
+    <rect x="22" y="92" width="30" height="36" rx="8" fill="#F59E0B"/>
+    <rect x="22" y="92" width="30" height="12" rx="6" fill="#D97706"/>
+    <circle cx="37" cy="110" r="3" fill="#fff"/>
+    <circle cx="0" cy="34" r="34" fill="#F6D3B8"/>
+    <path d="M-36 28 a36 36 0 0 1 72 0 z" fill="#4338CA"/>
+    <rect x="-42" y="24" width="84" height="10" rx="5" fill="#4338CA"/>
+    <circle cx="-30" cy="52" r="4.5" fill="#1E293B"/>
+    <circle cx="30" cy="52" r="4.5" fill="#1E293B"/>
+    <path d="M-10 66 q10 8 20 0" fill="none" stroke="#1E293B" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="-40" cy="62" r="7" fill="#F6D3B8" opacity=".9"/>
+    <circle cx="40" cy="62" r="7" fill="#F6D3B8" opacity=".9"/>
+  </g>
+      <g transform="translate(1030,520) scale(1)">
+    <ellipse cx="0" cy="158" rx="64" ry="12" fill="#0F172A" opacity=".08"/>
+    <rect x="-40" y="78" width="80" height="72" rx="30" fill="#92603C"/>
+    <rect x="-18" y="92" width="36" height="26" rx="8" fill="#0F172A" opacity=".55"/>
+    <circle cx="-8" cy="105" r="4" fill="#34D399"/>
+    <circle cx="8" cy="105" r="4" fill="#F59E0B"/>
+    <circle cx="-30" cy="-4" r="15" fill="#92603C"/>
+    <circle cx="30" cy="-4" r="15" fill="#92603C"/>
+    <circle cx="-30" cy="-4" r="7" fill="#6B4226"/>
+    <circle cx="30" cy="-4" r="7" fill="#6B4226"/>
+    <circle cx="0" cy="24" r="38" fill="#92603C"/>
+    <ellipse cx="0" cy="38" rx="20" ry="15" fill="#E8C9A8"/>
+    <circle cx="-14" cy="20" r="5" fill="#1E293B"/>
+    <circle cx="14" cy="20" r="5" fill="#1E293B"/>
+    <ellipse cx="0" cy="33" rx="6" ry="4.5" fill="#1E293B"/>
+    <path d="M0 38 v7 M0 45 q-8 6 -15 1 M0 45 q8 6 15 1" fill="none" stroke="#1E293B" stroke-width="2.6" stroke-linecap="round"/>
+  </g>
+      <g><rect x="70" y="180" width="300" height="96" rx="18" fill="#FFFFFF" stroke="#6366F1" stroke-width="2.5" opacity="1"/><path d="M106 276 l-22 26 l34 -18 z" fill="#FFFFFF" stroke="#6366F1" stroke-width="2" stroke-linejoin="round"/><rect x="88" y="164" width="85" height="30" rx="15" fill="#6366F1"/>
+       <text x="102" y="185" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="16" font-weight="700" fill="#fff" text-anchor="start" opacity="1">小邮差</text><text x="92" y="222" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="19" font-weight="400" fill="#1E293B" text-anchor="start"><tspan x="92" dy="0">增删改查之后刷新页面，数据还</tspan><tspan x="92" dy="27.55">在吗？</tspan></text></g>
+      <g><rect x="820" y="180" width="310" height="110" rx="18" fill="#FFFFFF" stroke="#D97706" stroke-width="2.5" opacity="1"/><path d="M1094 290 l22 26 l-34 -18 z" fill="#FFFFFF" stroke="#D97706" stroke-width="2" stroke-linejoin="round"/><rect x="838" y="164" width="62" height="30" rx="15" fill="#D97706"/>
+       <text x="852" y="185" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="16" font-weight="700" fill="#fff" text-anchor="start" opacity="1">大熊</text><text x="842" y="222" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="17" font-weight="400" fill="#1E293B" text-anchor="start"><tspan x="842" dy="0">每次变更就 persist() 一次；想恢</tspan><tspan x="842" dy="24.65">复出厂？POST /api/db/reset！</tspan></text></g>
+      <g><rect x="330" y="520" width="150" height="44" rx="10" fill="#fff" stroke="#16A34A" stroke-width="2.5" opacity="1"/>
+        <text x="350" y="549" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="16" font-weight="800" fill="#1E293B" text-anchor="start" opacity="1">POST</text>
+        <text x="462" y="549" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="16" font-weight="800" fill="#16A34A" text-anchor="end" opacity="1">201</text></g><g><rect x="330" y="580" width="150" height="44" rx="10" fill="#fff" stroke="#0F766E" stroke-width="2.5" opacity="1"/>
+        <text x="350" y="609" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="16" font-weight="800" fill="#1E293B" text-anchor="start" opacity="1">PATCH</text>
+        <text x="462" y="609" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="16" font-weight="800" fill="#0F766E" text-anchor="end" opacity="1">200</text></g><g><rect x="690" y="520" width="150" height="44" rx="10" fill="#fff" stroke="#E11D48" stroke-width="2.5" opacity="1"/>
+        <text x="710" y="549" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="16" font-weight="800" fill="#1E293B" text-anchor="start" opacity="1">DELETE</text>
+        <text x="822" y="549" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="16" font-weight="800" fill="#E11D48" text-anchor="end" opacity="1">204</text></g><g><rect x="690" y="580" width="150" height="44" rx="10" fill="#fff" stroke="#D97706" stroke-width="2.5" opacity="1"/>
+        <text x="710" y="609" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="16" font-weight="800" fill="#1E293B" text-anchor="start" opacity="1">重复邮箱</text>
+        <text x="822" y="609" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="16" font-weight="800" fill="#D97706" text-anchor="end" opacity="1">409</text></g>
+      <g><rect x="120" y="690" width="960" height="46" rx="12" fill="#F1F5F9" stroke="none" stroke-width="0" opacity="1"/>
+  <text x="140" y="720" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="17" font-weight="500" fill="#64748B" text-anchor="start" opacity="1">Faker 固定随机种子（20261001）：初始数据稳定可复现，测试更好写。</text></g>
+  <rect x="0" y="794" width="1200" height="46" fill="#0F172A"/>
+  <text x="48" y="823" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="16" font-weight="600" fill="#94A3B8" text-anchor="start" opacity="1">信标驿站 · MSW 3 漫画剧场</text>
+  <text x="1152" y="823" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="16" font-weight="400" fill="#94A3B8" text-anchor="end" opacity="1">13 / 16</text>
+</svg>

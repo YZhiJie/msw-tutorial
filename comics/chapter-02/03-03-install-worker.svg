@@ -1,0 +1,66 @@
+<svg viewBox="0 0 1200 840" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif">
+  <title>第 03 话｜请站长上任：安装与 init</title>
+  <desc>两条命令：装上 msw，再把官方 worker 脚本放进站点根目录，站长才能正式上岗。</desc>
+  <defs>
+    <linearGradient id="hdr-03" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4338CA"/>
+      <stop offset="1" stop-color="#6366F1"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="1200" height="840" rx="0" fill="#F8FAFC" stroke="none" stroke-width="0" opacity="1"/>
+  <rect x="0" y="0" width="1200" height="118" fill="url(#hdr-03)"/>
+  <circle cx="1130" cy="-40" r="120" fill="#ffffff" opacity=".07"/>
+  <circle cx="60" cy="140" r="90" fill="#6366F1" opacity=".05"/>
+  <text x="48" y="52" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="24" font-weight="700" fill="#C7D2FE" text-anchor="start" opacity="1">第 3 话</text>
+  <text x="48" y="96" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="38" font-weight="800" fill="#FFFFFF" text-anchor="start" opacity="1">请站长上任：安装与 init</text>
+  <g transform="translate(940,30)">
+    <rect width="212" height="58" rx="29" fill="#FFFFFF" opacity=".16"/>
+    <text x="106" y="37" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="19" font-weight="700" fill="#fff" text-anchor="middle" opacity="1">第 2 章 · 安装与配置</text>
+  </g>
+  
+      <g><circle cx="110" cy="215" r="22" fill="#6366F1"  opacity="1"/><text x="110" y="222" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="22" font-weight="800" fill="#fff" text-anchor="middle" opacity="1">1</text></g>
+      <g><rect x="150" y="175" width="440" height="120" rx="14" fill="#0F172A" stroke="#1E293B" stroke-width="0" opacity="1"/><circle cx="172" cy="203" r="6" fill="#F87171"/><circle cx="192" cy="203" r="6" fill="#FBBF24"/><circle cx="212" cy="203" r="6" fill="#34D399"/>
+       <text x="570" y="210" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="15" font-weight="400" fill="#94A3B8" text-anchor="end" opacity="1">terminal</text><text x="170" y="243" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0">$ pnpm add msw</tspan></text></g>
+      <g><circle cx="110" cy="400" r="22" fill="#6366F1"  opacity="1"/><text x="110" y="407" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="22" font-weight="800" fill="#fff" text-anchor="middle" opacity="1">2</text></g>
+      <g><rect x="150" y="360" width="440" height="120" rx="14" fill="#0F172A" stroke="#1E293B" stroke-width="0" opacity="1"/><circle cx="172" cy="388" r="6" fill="#F87171"/><circle cx="192" cy="388" r="6" fill="#FBBF24"/><circle cx="212" cy="388" r="6" fill="#34D399"/>
+       <text x="570" y="395" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="15" font-weight="400" fill="#94A3B8" text-anchor="end" opacity="1">terminal</text><text x="170" y="428" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0">$ npx msw init public/ --save</tspan></text></g>
+      <g><circle cx="110" cy="585" r="22" fill="#6366F1"  opacity="1"/><text x="110" y="592" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="22" font-weight="800" fill="#fff" text-anchor="middle" opacity="1">3</text></g>
+      <g><rect x="150" y="545" width="440" height="120" rx="14" fill="#0F172A" stroke="#1E293B" stroke-width="0" opacity="1"/><circle cx="172" cy="573" r="6" fill="#F87171"/><circle cx="192" cy="573" r="6" fill="#FBBF24"/><circle cx="212" cy="573" r="6" fill="#34D399"/>
+       <text x="570" y="580" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="15" font-weight="400" fill="#94A3B8" text-anchor="end" opacity="1">main.ts</text><text x="170" y="613" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0"><tspan fill="#C4B5FD">import</tspan> { <tspan fill="#FCD34D">setupWorker</tspan> } <tspan fill="#C4B5FD">from</tspan> 'msw/browser'</tspan></text></g>
+      <g>
+    <line x1="620" y1="430" x2="750" y2="430" stroke="#6366F1" stroke-width="3" stroke-linecap="round"/>
+    <polyline points="760,430 749.9560216565646,434.48536498365524 749.9560216565646,425.51463501634476" fill="none" stroke="#6366F1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+      <rect x="790" y="220" width="330" height="360" rx="18" fill="#0F172A" stroke="#1E293B" stroke-width="2" opacity="1"/>
+      <text x="955" y="268" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="22" font-weight="700" fill="#7DD3FC" text-anchor="middle" opacity="1">public/</text>
+      <rect x="840" y="300" width="230" height="180" rx="12" fill="#1E293B" stroke="#334155" stroke-width="2" opacity="1"/>
+      <text x="955" y="360" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="19" font-weight="400" fill="#E2E8F0" text-anchor="middle" opacity="1">mockService</text>
+      <text x="955" y="388" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="19" font-weight="400" fill="#E2E8F0" text-anchor="middle" opacity="1">Worker.js</text>
+      <g fill="none" stroke="#14B8A6" stroke-width="4" stroke-linecap="round">
+    <path d="M945 430 a10 10 0 0 1 20 0"/>
+    <path d="M933 422 a22 22 0 0 1 44 0" opacity=".7"/>
+    <path d="M919 412 a36 36 0 0 1 72 0" opacity=".4"/>
+    <circle cx="955" cy="432" r="5" fill="#14B8A6" stroke="none"/>
+  </g>
+      <text x="955" y="545" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="18" font-weight="400" fill="#94A3B8" text-anchor="middle" opacity="1">必须与应用同源</text>
+      <text x="955" y="572" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="18" font-weight="400" fill="#94A3B8" text-anchor="middle" opacity="1">且要提交到 git</text>
+      <g transform="translate(700,560) scale(0.8)">
+    <ellipse cx="0" cy="150" rx="58" ry="12" fill="#0F172A" opacity=".08"/>
+    <rect x="-34" y="70" width="68" height="74" rx="22" fill="#0F766E"/>
+    <rect x="-12" y="72" width="24" height="34" rx="8" fill="#fff" opacity=".92"/>
+    <circle cx="0" cy="34" r="34" fill="#F6D3B8"/>
+    <path d="M-38 30 q38 -40 76 0 l6 12 h-88 z" fill="#0F766E"/>
+    <rect x="-44" y="36" width="88" height="9" rx="4.5" fill="#0F766E"/>
+    <g><line x1="9" y1="18" x2="16" y2="18" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/><line x1="6.3639610306789285" y1="24.36396103067893" x2="11.313708498984761" y2="29.31370849898476" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/><line x1="5.51091059616309e-16" y1="27" x2="9.797174393178826e-16" y2="34" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/><line x1="-6.363961030678928" y1="24.36396103067893" x2="-11.31370849898476" y2="29.31370849898476" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/><line x1="-9" y1="18" x2="-16" y2="18.000000000000004" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/><line x1="-6.363961030678929" y1="11.636038969321072" x2="-11.313708498984763" y2="6.686291501015241" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/><line x1="-1.6532731788489267e-15" y1="9" x2="-2.9391523179536475e-15" y2="2" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/><line x1="6.363961030678926" y1="11.63603896932107" x2="11.313708498984758" y2="6.686291501015237" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/><circle cx="0" cy="18" r="8" fill="#F59E0B"/><circle cx="0" cy="18" r="3.4" fill="#0F766E"/></g>
+    <circle cx="-30" cy="52" r="4.5" fill="#1E293B"/>
+    <circle cx="30" cy="52" r="4.5" fill="#1E293B"/>
+    <rect x="-13" y="63" width="26" height="7" rx="3.5" fill="#fff"/>
+    <circle cx="-40" cy="62" r="7" fill="#F6D3B8" opacity=".9"/>
+    <circle cx="40" cy="62" r="7" fill="#F6D3B8" opacity=".9"/>
+  </g>
+      <g><rect x="120" y="700" width="960" height="46" rx="12" fill="#F1F5F9" stroke="none" stroke-width="0" opacity="1"/>
+  <text x="140" y="730" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="17" font-weight="500" fill="#64748B" text-anchor="start" opacity="1">升级 msw 后重新执行一次 init，保持 worker 脚本与库版本一致。</text></g>
+  <rect x="0" y="794" width="1200" height="46" fill="#0F172A"/>
+  <text x="48" y="823" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="16" font-weight="600" fill="#94A3B8" text-anchor="start" opacity="1">信标驿站 · MSW 3 漫画剧场</text>
+  <text x="1152" y="823" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="16" font-weight="400" fill="#94A3B8" text-anchor="end" opacity="1">3 / 16</text>
+</svg>

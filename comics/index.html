@@ -1,0 +1,1568 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>信标驿站 · MSW 3 漫画剧场</title>
+  <!-- 相对路径：本地从 comics/ 目录打开与部署后位于站点 comics/ 都指向站点根图标 -->
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+  <style>
+    /* ============================================================
+       信标驿站 · MSW 3 漫画剧场 · 整合阅读器（零依赖单文件）
+       交互模式参考 frontend-advanced-guide 的 Neon Ink 阅读器：
+       1) 内容序列来自 manifest.js（file:// 与 http 双兼容），SVG 内联注入保证矢量缩放；
+       2) 双阅读模式：翻页（一话一屏，默认）/ 长卷（连续滚动，IntersectionObserver 按需加载）；
+       3) 讲解 .md 右侧抽屉呈现，内置受控迷你渲染器（先转义再替换，防 XSS）；
+       4) 进度只存「话 id + 阅读模式 + 格式」，封面可一键继续阅读；
+       5) 单话加载失败不影响整体：每话独立错误卡片 + 重试按钮；
+       6) 翻页模式预取相邻话；内联 SVG 注入前做 id 命名空间隔离，
+          避免多话同屏时渐变/裁剪的 url(#id) 互相串引用。
+       ============================================================ */
+    :root {
+      --bg: #0b1220;
+      --bg-soft: #0e1730;
+      --bg-card: #111a30;
+      --line: #223055;
+      --ink: #e2e8f0;
+      --ink-dim: #94a3b8;
+      --ink-faint: #64748b;
+      --cyan: #22d3ee;
+      --indigo: #818cf8;
+      --violet: #a78bfa;
+      --teal: #2dd4bf;
+      --pink: #f472b6;
+      --orange: #f97316;
+      --green: #34d399;
+      --sidebar-w: 292px;
+      --header-h: 58px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    button {
+      font-family: inherit;
+    }
+
+    code {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 12.5px;
+      background: rgba(129, 140, 248, .12);
+      border: 1px solid rgba(129, 140, 248, .25);
+      padding: 1px 6px;
+      border-radius: 5px;
+      color: #c7d2fe;
+    }
+
+    /* ---------- 顶部阅读进度条 ---------- */
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0;
+      background: linear-gradient(90deg, var(--cyan), var(--indigo), var(--pink));
+      z-index: 90;
+      transition: width .12s linear;
+    }
+
+    /* ---------- 封面 ---------- */
+    #cover {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 56px 24px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #cover::before {
+      content: "";
+      position: absolute;
+      top: -20%;
+      left: -10%;
+      width: 70%;
+      height: 140%;
+      background: linear-gradient(120deg, rgba(34, 211, 238, .10), transparent 60%);
+      transform: skewX(-18deg);
+      pointer-events: none;
+    }
+
+    #cover::after {
+      content: "";
+      position: absolute;
+      bottom: -30%;
+      right: -15%;
+      width: 60%;
+      height: 120%;
+      background: linear-gradient(300deg, rgba(129, 140, 248, .12), transparent 55%);
+      transform: skewX(18deg);
+      pointer-events: none;
+    }
+
+    .cover-kicker {
+      font: 700 13px/1 ui-monospace, Menlo, Consolas, monospace;
+      letter-spacing: 3px;
+      color: var(--cyan);
+      text-transform: uppercase;
+    }
+
+    #cover h1 {
+      margin: 14px 0 10px;
+      font-size: clamp(30px, 5.4vw, 46px);
+      letter-spacing: 1px;
+      background: linear-gradient(100deg, #e2e8f0 30%, #22d3ee 70%, #a78bfa);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .cover-sub {
+      color: var(--ink-dim);
+      max-width: 620px;
+      margin: 0 auto 8px;
+      font-size: 15px;
+    }
+
+    .cover-stats {
+      display: flex;
+      gap: 26px;
+      justify-content: center;
+      margin: 18px 0 26px;
+      color: var(--ink-faint);
+      font-size: 13px;
+    }
+
+    .cover-stats b {
+      color: var(--ink);
+      font-size: 17px;
+      margin-right: 4px;
+    }
+
+    .cover-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .btn-primary,
+    .btn-ghost {
+      padding: 13px 34px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s, background .15s;
+    }
+
+    .btn-primary {
+      border: 0;
+      background: linear-gradient(120deg, #0891b2, #6366f1);
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(34, 211, 238, .25);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(34, 211, 238, .35);
+    }
+
+    .btn-ghost {
+      border: 1px solid var(--line);
+      background: rgba(17, 26, 48, .7);
+      color: var(--ink-dim);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    #resume-btn {
+      display: none;
+    }
+
+    #resume-btn.show {
+      display: inline-block;
+    }
+
+    .cover-hint {
+      color: var(--ink-faint);
+      font-size: 12.5px;
+      margin-top: 10px;
+    }
+
+    /* 封面剧集速览（按章分组的文字卡，不用缩略图保证首屏速度） */
+    #cover-list {
+      margin-top: 44px;
+      width: min(980px, 100%);
+      text-align: left;
+      position: relative;
+      z-index: 1;
+    }
+
+    #cover-list h2 {
+      font-size: 15px;
+      color: var(--ink-dim);
+      margin: 26px 0 10px;
+      padding-left: 10px;
+      border-left: 3px solid var(--cyan);
+    }
+
+    .cover-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+      gap: 10px;
+    }
+
+    .cover-card {
+      border: 1px solid var(--line);
+      background: rgba(17, 26, 48, .72);
+      border-radius: 12px;
+      padding: 11px 14px;
+      cursor: pointer;
+      text-align: left;
+      color: var(--ink-dim);
+      transition: border-color .15s, transform .15s, color .15s;
+      display: block;
+      width: 100%;
+      font-size: 13.5px;
+    }
+
+    .cover-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+      color: var(--ink);
+    }
+
+    .cover-card .no {
+      font: 700 11px ui-monospace, Menlo, monospace;
+      color: var(--cyan);
+      margin-right: 7px;
+    }
+
+    .cover-card .t {
+      color: var(--ink);
+    }
+
+    .cover-card.read-done .t::after {
+      content: "✓";
+      color: var(--green);
+      margin-left: 7px;
+      font-size: 12px;
+    }
+
+    /* ---------- 顶栏 ---------- */
+    #topbar {
+      position: fixed;
+      top: 3px;
+      left: 0;
+      right: 0;
+      height: var(--header-h);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      background: rgba(11, 18, 32, .86);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+      z-index: 70;
+    }
+
+    .brand {
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: .5px;
+      white-space: nowrap;
+    }
+
+    .brand small {
+      color: var(--ink-faint);
+      font-weight: 400;
+      margin-left: 8px;
+      font-size: 12px;
+    }
+
+    #topbar .tools {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tb-switch {
+      display: flex;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      overflow: hidden;
+    }
+
+    .tb-switch button {
+      border: 0;
+      background: transparent;
+      color: var(--ink-dim);
+      padding: 6px 13px;
+      cursor: pointer;
+      font-size: 12.5px;
+    }
+
+    .tb-switch button.active {
+      background: linear-gradient(120deg, rgba(8, 145, 178, .9), rgba(99, 102, 241, .9));
+      color: #fff;
+    }
+
+    #pos-label {
+      font: 600 12.5px ui-monospace, Menlo, monospace;
+      color: var(--ink-faint);
+      min-width: 62px;
+      text-align: center;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--ink-dim);
+      cursor: pointer;
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* ---------- 主体布局 ---------- */
+    #layout {
+      display: flex;
+      padding-top: calc(var(--header-h) + 3px);
+      min-height: 100vh;
+    }
+
+    #toc {
+      width: var(--sidebar-w);
+      flex: 0 0 var(--sidebar-w);
+      position: sticky;
+      top: calc(var(--header-h) + 3px);
+      height: calc(100vh - var(--header-h) - 3px);
+      overflow-y: auto;
+      border-right: 1px solid var(--line);
+      background: var(--bg-soft);
+      padding: 14px 10px 20px;
+      z-index: 40;
+    }
+
+    .toc-chapter {
+      font: 700 12px ui-monospace, Menlo, monospace;
+      color: var(--ink-faint);
+      letter-spacing: 1px;
+      margin: 16px 6px 6px;
+      text-transform: uppercase;
+    }
+
+    .toc-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: 0;
+      color: var(--ink-dim);
+      padding: 8px 10px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 13.5px;
+      transition: background .12s, color .12s;
+    }
+
+    .toc-item:hover {
+      background: rgba(34, 211, 238, .07);
+      color: var(--ink);
+    }
+
+    .toc-item.active {
+      background: linear-gradient(120deg, rgba(8, 145, 178, .22), rgba(99, 102, 241, .22));
+      color: #fff;
+      box-shadow: inset 2px 0 0 var(--cyan);
+    }
+
+    .toc-item .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--line);
+      flex: 0 0 7px;
+      transition: background .2s;
+    }
+
+    .toc-item.read .dot {
+      background: var(--green);
+    }
+
+    .toc-item .tno {
+      font: 700 11px ui-monospace, Menlo, monospace;
+      color: var(--ink-faint);
+      flex: 0 0 20px;
+    }
+
+    .toc-item.active .tno {
+      color: var(--cyan);
+    }
+
+    .toc-item .tt {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .toc-foot {
+      margin-top: 22px;
+      padding: 12px;
+      border: 1px dashed var(--line);
+      border-radius: 10px;
+      color: var(--ink-faint);
+      font-size: 12px;
+      line-height: 2;
+    }
+
+    .toc-foot kbd {
+      font-family: ui-monospace, Menlo, monospace;
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 0 6px;
+      color: var(--ink-dim);
+      font-size: 11px;
+    }
+
+    #sb-mask {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 17, .6);
+      z-index: 35;
+    }
+
+    main#stage {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* ---------- 单话区块 ---------- */
+    .ep-pane {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 26px 22px 40px;
+    }
+
+    #longView .ep-pane {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .ep-head {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .ep-head .kicker {
+      font: 700 12px ui-monospace, Menlo, Consolas, monospace;
+      color: var(--cyan);
+      letter-spacing: 1px;
+    }
+
+    .ep-head h2 {
+      margin: 0;
+      font-size: 21px;
+    }
+
+    .ep-desc {
+      color: var(--ink-dim);
+      font-size: 14px;
+      margin: 4px 0 14px;
+    }
+
+    .comic-frame {
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      box-shadow: 0 14px 40px rgba(2, 6, 17, .5);
+    }
+
+    .comic-frame svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .comic-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .ep-meta {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .ep-box {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 13px 16px;
+    }
+
+    .ep-box .box-title {
+      font: 700 12px ui-monospace, Menlo, monospace;
+      color: var(--teal);
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .ep-box .box-title.warn {
+      color: var(--orange);
+    }
+
+    .ep-box p {
+      margin: 0 0 8px;
+      color: var(--ink-dim);
+      font-size: 13.8px;
+    }
+
+    .ep-box p:last-child {
+      margin-bottom: 0;
+    }
+
+    .ep-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .ep-tag {
+      background: rgba(249, 115, 22, .1);
+      border: 1px solid rgba(249, 115, 22, .35);
+      color: #fdba74;
+      font-size: 12.5px;
+      padding: 3px 11px;
+      border-radius: 999px;
+    }
+
+    .ep-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .mini-btn {
+      border: 1px solid var(--line);
+      background: var(--bg-card);
+      color: var(--ink-dim);
+      border-radius: 8px;
+      padding: 6px 13px;
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+
+    .mini-btn:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .doc-link {
+      font-size: 12.5px;
+      color: var(--ink-faint);
+      margin-left: auto;
+    }
+
+    /* ---------- 单话加载中 / 错误卡片 ---------- */
+    .ep-loading {
+      padding: 64px 20px;
+      text-align: center;
+      color: var(--ink-faint);
+      font-size: 14px;
+    }
+
+    .ep-loading::before {
+      content: "";
+      display: block;
+      width: 26px;
+      height: 26px;
+      margin: 0 auto 12px;
+      border-radius: 50%;
+      border: 3px solid var(--line);
+      border-top-color: var(--cyan);
+      animation: spin .9s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .ep-error {
+      padding: 34px 24px;
+      text-align: center;
+      border-radius: 14px;
+      background: var(--bg-card);
+      border: 1px dashed rgba(249, 115, 22, .55);
+    }
+
+    .ep-error .err-icon {
+      font-size: 30px;
+    }
+
+    .ep-error h3 {
+      margin: 10px 0 6px;
+      color: var(--orange);
+      font-size: 16.5px;
+    }
+
+    .ep-error p {
+      color: var(--ink-dim);
+      font-size: 13.5px;
+      margin: 4px 0 16px;
+      word-break: break-all;
+    }
+
+    .btn-retry {
+      padding: 9px 24px;
+      border-radius: 9px;
+      cursor: pointer;
+      border: 1px solid var(--orange);
+      background: rgba(249, 115, 22, .12);
+      color: var(--orange);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .btn-retry:hover {
+      background: rgba(249, 115, 22, .22);
+    }
+
+    /* ---------- 翻页模式左右切换 ---------- */
+    #flipView {
+      position: relative;
+      min-height: calc(100vh - var(--header-h) - 3px);
+    }
+
+    .nav-btn {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 45;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 0;
+      cursor: pointer;
+      background: rgba(17, 26, 48, .92);
+      border: 1px solid var(--line);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, .4);
+      font-size: 20px;
+      color: var(--ink-dim);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: color .15s, transform .15s;
+    }
+
+    body.flip-mode .nav-btn {
+      display: flex;
+    }
+
+    .nav-btn:hover {
+      color: var(--cyan);
+      transform: translateY(-50%) scale(1.06);
+    }
+
+    #prev {
+      left: 14px;
+    }
+
+    #next {
+      right: 14px;
+    }
+
+    /* ---------- 回到顶部（长卷模式） ---------- */
+    #to-top {
+      position: fixed;
+      right: 24px;
+      bottom: 28px;
+      z-index: 44;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: rgba(17, 26, 48, .92);
+      color: var(--ink-dim);
+      font-size: 18px;
+      cursor: pointer;
+      display: none;
+    }
+
+    body.long-mode #to-top.show {
+      display: block;
+    }
+
+    #to-top:hover {
+      color: var(--cyan);
+      border-color: var(--cyan);
+    }
+
+    /* ---------- 讲解稿抽屉 ---------- */
+    #md-mask {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 17, .55);
+      z-index: 94;
+    }
+
+    #md-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: min(520px, 94vw);
+      background: var(--bg-soft);
+      border-left: 1px solid var(--line);
+      z-index: 95;
+      transform: translateX(102%);
+      transition: transform .24s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #md-drawer.open {
+      transform: translateX(0);
+    }
+
+    #md-drawer .md-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    #md-drawer .md-head h3 {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    #md-drawer .md-head .mini-btn {
+      margin-left: auto;
+    }
+
+    #md-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 22px 40px;
+      font-size: 13.8px;
+      color: var(--ink-dim);
+    }
+
+    #md-body h1,
+    #md-body h2,
+    #md-body h3 {
+      color: var(--ink);
+      font-size: 16px;
+      margin: 22px 0 8px;
+      padding-left: 9px;
+      border-left: 3px solid var(--cyan);
+    }
+
+    #md-body h1 {
+      font-size: 17.5px;
+    }
+
+    #md-body h3 {
+      border-color: var(--violet);
+    }
+
+    #md-body pre {
+      background: #0a1120;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 14px;
+      overflow-x: auto;
+      font-size: 12.3px;
+      line-height: 1.65;
+    }
+
+    #md-body pre code {
+      background: none;
+      border: 0;
+      padding: 0;
+      color: #a5f3fc;
+    }
+
+    #md-body ul,
+    #md-body ol {
+      padding-left: 20px;
+      margin: 8px 0;
+    }
+
+    #md-body li {
+      margin: 3px 0;
+    }
+
+    #md-body blockquote {
+      margin: 10px 0;
+      padding: 8px 14px;
+      border-left: 3px solid var(--violet);
+      background: rgba(167, 139, 250, .07);
+      border-radius: 0 8px 8px 0;
+    }
+
+    #md-body table {
+      border-collapse: collapse;
+      margin: 10px 0;
+      width: 100%;
+      font-size: 12.6px;
+    }
+
+    #md-body th,
+    #md-body td {
+      border: 1px solid var(--line);
+      padding: 6px 10px;
+      text-align: left;
+    }
+
+    #md-body th {
+      background: rgba(34, 211, 238, .08);
+      color: var(--ink);
+    }
+
+    #md-body p {
+      margin: 8px 0;
+    }
+
+    /* ---------- 移动端 ---------- */
+    @media (max-width: 900px) {
+      #toc {
+        position: fixed;
+        left: 0;
+        top: calc(var(--header-h) + 3px);
+        transform: translateX(-104%);
+        transition: transform .22s ease;
+        box-shadow: 12px 0 40px rgba(2, 6, 17, .55);
+      }
+
+      body.sb-open #toc {
+        transform: translateX(0);
+      }
+
+      body.sb-open #sb-mask {
+        display: block;
+      }
+
+      .brand small,
+      #pos-label {
+        display: none;
+      }
+
+      .ep-pane {
+        padding: 20px 12px 32px;
+      }
+
+      .nav-btn {
+        width: 38px;
+        height: 38px;
+        top: auto;
+        bottom: 18px;
+        transform: none;
+      }
+
+      .nav-btn:hover {
+        transform: scale(1.06);
+      }
+
+      .doc-link {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="progress-bar"></div>
+
+  <!-- 封面：站点信息 + 继续阅读 + 全部剧集速览 -->
+  <section id="cover">
+    <div class="cover-kicker">MSW TUTORIAL COMICS</div>
+    <h1>信标驿站 · MSW 3 漫画剧场</h1>
+    <p class="cover-sub">16 话图解 Mock Service Worker —— 请求小邮差 · Worker 站长 · 服务端大熊，带你从第一行 handler 走到持久化、鉴权与 WebSocket 聊天室。</p>
+    <div class="cover-stats">
+      <span><b>16</b>话</span>
+      <span><b>7</b>章</span>
+      <span><b>1200×840</b>画布</span>
+      <span><b>SVG / PNG</b>双格式</span>
+    </div>
+    <div class="cover-actions">
+      <button class="btn-primary" id="start-btn">开始阅读</button>
+      <button class="btn-ghost" id="resume-btn">继续阅读</button>
+    </div>
+    <p class="cover-hint">快捷键：← → 切话 · M 切换阅读模式 · F 切换 SVG/PNG · Esc 关闭侧栏/讲解稿</p>
+    <div id="cover-list"></div>
+  </section>
+
+  <!-- 阅读器主体 -->
+  <div id="app" hidden>
+    <header id="topbar">
+      <button class="icon-btn" id="sb-toggle" aria-label="目录">☰</button>
+      <div class="brand">信标驿站<small>MSW 3 漫画剧场</small></div>
+      <div class="tools">
+        <div class="tb-switch" role="group" aria-label="阅读模式">
+          <button id="modeFlip" class="active">翻页</button>
+          <button id="modeLong">长卷</button>
+        </div>
+        <div class="tb-switch" role="group" aria-label="格式切换">
+          <button id="fmtSvg" class="active">SVG</button>
+          <button id="fmtPng">PNG</button>
+        </div>
+        <span id="pos-label"></span>
+        <button class="icon-btn" id="home-btn" aria-label="返回封面" title="返回封面">⌂</button>
+      </div>
+    </header>
+
+    <div id="layout">
+      <aside id="toc"></aside>
+      <div id="sb-mask"></div>
+      <main id="stage">
+        <!-- 翻页模式：一话一屏 -->
+        <div id="flipView">
+          <article class="ep-pane" id="pane"></article>
+        </div>
+        <!-- 长卷模式：全部话按序堆叠，IntersectionObserver 按需加载 -->
+        <div id="longView" hidden></div>
+      </main>
+    </div>
+
+    <button class="nav-btn" id="prev" aria-label="上一话">‹</button>
+    <button class="nav-btn" id="next" aria-label="下一话">›</button>
+    <button id="to-top" aria-label="回到顶部">↑</button>
+  </div>
+
+  <!-- 讲解稿抽屉 -->
+  <div id="md-mask"></div>
+  <aside id="md-drawer" aria-label="讲解稿">
+    <div class="md-head">
+      <h3 id="md-title">讲解稿</h3>
+      <a class="mini-btn" id="md-download" download>下载 .md</a>
+      <button class="mini-btn" id="md-close">关闭</button>
+    </div>
+    <div id="md-body"></div>
+  </aside>
+
+  <script src="./manifest.js"></script>
+  <script>
+    (() => {
+      const M = window.MSW_COMICS_MANIFEST;
+      if (!M) {
+        document.body.innerHTML =
+          "<p style='padding:40px;color:#e2e8f0'>缺少 manifest.js，请先运行 node comics/build/generate.mjs 生成漫画清单。</p>";
+        return;
+      }
+
+      const eps = M.episodes;
+      const TOTAL = eps.length;
+      const LS_PROGRESS = "msw-beacon-reader-progress-v1";
+      const LS_READ = "msw-beacon-reader-read-v1";
+      const DOC_SITE = "https://yzhijie.github.io/msw-tutorial/";
+
+      /* ---------- 状态 ---------- */
+      const state = {
+        mode: "flip", // flip | long
+        fmt: "svg",   // svg | png
+        cur: 0,
+        started: false,
+      };
+      // 内容缓存：key = `${idx}:${fmt}`，value = { status: 'ok'|'err', html?, msg? }
+      const cache = new Map();
+      const mdCache = new Map(); // idx -> md 原文
+      const readSet = new Set(JSON.parse(localStorage.getItem(LS_READ) || "[]"));
+
+      const $ = (id) => document.getElementById(id);
+      const no = (e) => String(e.episode).padStart(2, "0");
+
+      /* ---------- 工具：转义与 SVG 命名空间隔离 ---------- */
+      function escapeHtml(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      // 内联注入前把本话 SVG 的全部 id / url(#…) / href="#" 加前缀，
+      // 防止长卷模式下多话同屏时渐变与裁剪路径的 id 互相串引用（内联方案最大坑点）
+      function namespaceSvg(text, idx) {
+        const p = `ep${eps[idx].episode}-`;
+        return text
+          .replace(/^\s*<\?xml[^>]*\?>\s*/, "")
+          .replace(/\b(id)="([^"]+)"/g, `$1="${p}$2"`)
+          .replace(/url\(#([^)]+)\)/g, `url(#${p}$1)`)
+          .replace(/\bhref="#([^"]+)"/g, `href="#${p}$1"`);
+      }
+
+      // 配套文档：docs/03-basic-api/index.md -> 站点 /03-basic-api/；xxx.md -> /path/xxx
+      function docUrl(d) {
+        if (!d) return "";
+        let p = d.replace(/\.md$/, "");
+        if (p.endsWith("/index")) p = p.slice(0, -"/index".length) + "/";
+        return DOC_SITE + p;
+      }
+
+      /* ---------- 讲解稿迷你渲染器：先整体转义，再做受控替换（防 XSS） ---------- */
+      function renderMd(src) {
+        const lines = escapeHtml(src).split(/\r?\n/);
+        const out = [];
+        let i = 0;
+        const inline = (s) =>
+          s
+            .replace(/`([^`]+)`/g, "<code>$1</code>")
+            .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        const isTableSep = (s) => /^\s*\|?[\s:-]*-{2,}[\s|:-]*\|?\s*$/.test(s) && s.includes("-");
+        const splitRow = (s) =>
+          s.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
+
+        while (i < lines.length) {
+          const line = lines[i];
+          if (/^```/.test(line)) {
+            // 代码围栏：整体收集，内部不做任何替换
+            const buf = [];
+            i++;
+            while (i < lines.length && !/^```/.test(lines[i])) buf.push(lines[i++]);
+            i++;
+            out.push(`<pre><code>${buf.join("\n")}</code></pre>`);
+            continue;
+          }
+          const h = line.match(/^(#{1,4})\s+(.*)$/);
+          if (h) {
+            const lv = Math.min(h[1].length, 3);
+            out.push(`<h${lv}>${inline(h[2])}</h${lv}>`);
+            i++;
+            continue;
+          }
+          if (/^\s*(---+|\*\*\*+)\s*$/.test(line)) {
+            out.push("<hr />");
+            i++;
+            continue;
+          }
+          if (line.trim().startsWith("&gt;")) {
+            const buf = [];
+            while (i < lines.length && lines[i].trim().startsWith("&gt;"))
+              buf.push(lines[i++].trim().replace(/^&gt;\s?/, ""));
+            out.push(`<blockquote>${buf.map(inline).join("<br />")}</blockquote>`);
+            continue;
+          }
+          if (line.includes("|") && i + 1 < lines.length && isTableSep(lines[i + 1])) {
+            const head = splitRow(line);
+            i += 2;
+            const rows = [];
+            while (i < lines.length && lines[i].includes("|") && lines[i].trim()) rows.push(splitRow(lines[i++]));
+            out.push(
+              `<table><thead><tr>${head.map((c) => `<th>${inline(c)}</th>`).join("")}</tr></thead>` +
+                `<tbody>${rows
+                  .map((r) => `<tr>${head.map((_, k) => `<td>${inline(r[k] || "")}</td>`).join("")}</tr>`)
+                  .join("")}</tbody></table>`,
+            );
+            continue;
+          }
+          if (/^\s*[-*]\s+/.test(line)) {
+            const buf = [];
+            while (i < lines.length && /^\s*[-*]\s+/.test(lines[i]))
+              buf.push(`<li>${inline(lines[i++].replace(/^\s*[-*]\s+/, ""))}</li>`);
+            out.push(`<ul>${buf.join("")}</ul>`);
+            continue;
+          }
+          if (/^\s*\d+[.)]\s+/.test(line)) {
+            const buf = [];
+            while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i]))
+              buf.push(`<li>${inline(lines[i++].replace(/^\s*\d+[.)]\s+/, ""))}</li>`);
+            out.push(`<ol>${buf.join("")}</ol>`);
+            continue;
+          }
+          if (!line.trim()) {
+            i++;
+            continue;
+          }
+          out.push(`<p>${inline(line)}</p>`);
+          i++;
+        }
+        return out.join("\n");
+      }
+
+      /* ---------- 进度记忆：话 id + 模式 + 格式 ---------- */
+      function loadProgress() {
+        try {
+          const p = JSON.parse(localStorage.getItem(LS_PROGRESS) || "null");
+          if (p && eps.some((e) => e.id === p.epId)) return p;
+        } catch { /* 忽略损坏的进度数据 */ }
+        return null;
+      }
+
+      let saveTimer = null;
+      function saveProgress() {
+        if (!state.started) return;
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => {
+          const doc = document.documentElement;
+          const ratio =
+            state.mode === "long" && doc.scrollHeight > window.innerHeight
+              ? window.scrollY / (doc.scrollHeight - window.innerHeight)
+              : 0;
+          localStorage.setItem(
+            LS_PROGRESS,
+            JSON.stringify({ epId: eps[state.cur].id, mode: state.mode, fmt: state.fmt, ratio, updatedAt: Date.now() }),
+          );
+        }, 250);
+      }
+
+      function markRead(idx) {
+        const id = eps[idx].id;
+        if (readSet.has(id)) return;
+        readSet.add(id);
+        localStorage.setItem(LS_READ, JSON.stringify([...readSet]));
+        document
+          .querySelectorAll(`.toc-item[data-i="${idx}"], .cover-card[data-i="${idx}"]`)
+          .forEach((el) => el.classList.add("read"));
+      }
+
+      /* ---------- 章节分组与目录 ---------- */
+      const chaptersMap = [];
+      eps.forEach((e, idx) => {
+        let c = chaptersMap[chaptersMap.length - 1];
+        if (!c || c.chapter !== e.chapter) {
+          c = { chapter: e.chapter, chapterTitle: e.chapterTitle, items: [] };
+          chaptersMap.push(c);
+        }
+        c.items.push({ e, idx });
+      });
+
+      function buildToc() {
+        $("toc").innerHTML =
+          chaptersMap
+            .map(
+              (c) =>
+                `<div class="toc-chapter">第 ${c.chapter} 章 · ${escapeHtml(c.chapterTitle)}</div>` +
+                c.items
+                  .map(
+                    ({ e, idx }) =>
+                      `<button class="toc-item${readSet.has(e.id) ? " read" : ""}" data-i="${idx}">` +
+                      `<span class="dot"></span><span class="tno">${no(e)}</span><span class="tt">${escapeHtml(e.title)}</span></button>`,
+                  )
+                  .join(""),
+            )
+            .join("") +
+          `<div class="toc-foot">
+            <kbd>←</kbd><kbd>→</kbd> 上一话 / 下一话<br />
+            <kbd>M</kbd> 翻页 / 长卷 · <kbd>F</kbd> SVG / PNG<br />
+            <kbd>Home</kbd><kbd>End</kbd> 首末话 · <kbd>Esc</kbd> 关闭面板
+          </div>`;
+        document.querySelectorAll(".toc-item").forEach((el) =>
+          el.addEventListener("click", () => {
+            go(Number(el.dataset.i));
+            if (window.innerWidth <= 900) document.body.classList.remove("sb-open");
+          }),
+        );
+      }
+
+      function syncToc() {
+        document.querySelectorAll(".toc-item").forEach((el) => {
+          const active = Number(el.dataset.i) === state.cur;
+          el.classList.toggle("active", active);
+          if (active) el.scrollIntoView({ block: "nearest" });
+        });
+        $("pos-label").textContent = `${eps[state.cur].episode} / ${TOTAL}`;
+      }
+
+      /* ---------- 封面 ---------- */
+      function buildCover() {
+        $("cover-list").innerHTML = chaptersMap
+          .map(
+            (c) =>
+              `<h2>第 ${c.chapter} 章 · ${escapeHtml(c.chapterTitle)}</h2><div class="cover-grid">` +
+              c.items
+                .map(
+                  ({ e, idx }) =>
+                    `<button class="cover-card${readSet.has(e.id) ? " read-done" : ""}" data-i="${idx}">` +
+                    `<span class="no">${no(e)}</span><span class="t">${escapeHtml(e.title)}</span></button>`,
+                )
+                .join("") +
+              "</div>",
+          )
+          .join("");
+        document.querySelectorAll(".cover-card").forEach((el) =>
+          el.addEventListener("click", () => openReader(Number(el.dataset.i))),
+        );
+
+        const p = loadProgress();
+        if (p) {
+          const idx = eps.findIndex((e) => e.id === p.epId);
+          if (idx >= 0) {
+            const btn = $("resume-btn");
+            btn.textContent = `继续阅读 · 第 ${no(eps[idx])} 话 ${eps[idx].title}`;
+            btn.classList.add("show");
+            btn.onclick = () => {
+              state.mode = p.mode === "long" ? "long" : "flip";
+              state.fmt = p.fmt === "png" ? "png" : "svg";
+              openReader(idx, p.ratio || 0);
+            };
+          }
+        }
+      }
+
+      function openReader(idx, ratio = 0) {
+        state.started = true;
+        state.cur = idx;
+        $("cover").style.display = "none";
+        $("app").hidden = false;
+        syncModeControls();
+        setMode(state.mode, true);
+        go(idx, false);
+        if (ratio > 0 && state.mode === "long") {
+          requestAnimationFrame(() => {
+            const doc = document.documentElement;
+            window.scrollTo(0, ratio * (doc.scrollHeight - window.innerHeight));
+          });
+        }
+      }
+
+      /* ---------- 单话内容区块（加载 / 失败 / 内容三态） ---------- */
+      function episodeBlock(idx) {
+        const e = eps[idx];
+        const sec = document.createElement("section");
+        sec.className = "ep-pane";
+        sec.dataset.i = idx;
+        sec.innerHTML =
+          `<div class="ep-head"><span class="kicker">第 ${no(e)} 话 · 第 ${e.chapter} 章 ${escapeHtml(e.chapterTitle)}</span>` +
+          `<h2>${escapeHtml(e.title)}</h2></div>` +
+          `<p class="ep-desc">${escapeHtml(e.desc || "")}</p>` +
+          `<div class="comic-frame"><div class="ep-loading">正在加载第 ${no(e)} 话…</div></div>` +
+          `<div class="ep-meta">
+            ${e.desc ? "" : ""}
+            ${(e.read || []).length ? `<div class="ep-box"><div class="box-title">本话读法</div>${(e.read || []).map((p) => `<p>${escapeHtml(p)}</p>`).join("")}</div>` : ""}
+            ${(e.points || []).length ? `<div class="ep-box"><div class="box-title warn">坑点提示</div><div class="ep-tags">${(e.points || []).map((p) => `<span class="ep-tag">${escapeHtml(p)}</span>`).join("")}</div></div>` : ""}
+            <div class="ep-actions">
+              <button class="mini-btn md-btn">📖 讲解稿</button>
+              <a class="mini-btn" download="${no(e)}-${e.id}.svg" href="${e.svg}">下载 SVG</a>
+              <a class="mini-btn" download="${no(e)}-${e.id}.png" href="${e.png}">下载 PNG</a>
+              ${e.doc ? `<span class="doc-link">配套文档：<a href="${docUrl(e.doc)}" target="_blank" rel="noopener"><code>${escapeHtml(e.doc)}</code></a></span>` : ""}
+            </div>
+          </div>`;
+        const frame = sec.querySelector(".comic-frame");
+        const stateKey = `${idx}:${state.fmt}`;
+
+        const renderOk = () => {
+          if (state.fmt === "svg") frame.innerHTML = cache.get(stateKey).html;
+          else
+            frame.innerHTML = `<img src="${e.png}" alt="${no(e)} ${escapeHtml(e.title)}" loading="lazy" />`;
+        };
+
+        const load = () => {
+          if (cache.has(stateKey)) {
+            const c = cache.get(stateKey);
+            if (c.status === "ok") renderOk();
+            else renderError(c.msg);
+            return;
+          }
+          frame.innerHTML = `<div class="ep-loading">正在加载第 ${no(e)} 话…</div>`;
+          if (state.fmt === "png") {
+            const img = new Image();
+            img.onload = () => {
+              cache.set(stateKey, { status: "ok", html: "" });
+              if (frame.isConnected) {
+                frame.innerHTML = `<img src="${e.png}" alt="${no(e)} ${escapeHtml(e.title)}" />`;
+              }
+            };
+            img.onerror = () => fail("PNG 资源加载失败（png/ 目录缺失或文件名不匹配）");
+            img.src = e.png;
+            return;
+          }
+          fetch(e.svg)
+            .then((r) => {
+              if (!r.ok) throw new Error(`HTTP ${r.status}`);
+              return r.text();
+            })
+            .then((text) => {
+              cache.set(stateKey, { status: "ok", html: namespaceSvg(text, idx) });
+              if (frame.isConnected) renderOk();
+            })
+            .catch((err) => fail(`无法加载 ${e.svg} —— ${err.message}（请确认在 comics/ 目录下启动服务）`));
+        };
+
+        const fail = (msg) => {
+          cache.set(stateKey, { status: "err", msg });
+          if (frame.isConnected) renderError(msg);
+        };
+
+        const renderError = (msg) => {
+          frame.innerHTML =
+            `<div class="ep-error"><div class="err-icon">📡</div><h3>第 ${no(e)} 话加载失败</h3>` +
+            `<p>${escapeHtml(msg || "未知错误")}</p>` +
+            `<button class="btn-retry">重新加载本话</button></div>`;
+          frame.querySelector(".btn-retry").addEventListener("click", () => {
+            cache.delete(stateKey);
+            load();
+          });
+        };
+
+        sec.querySelector(".md-btn").addEventListener("click", () => openMd(idx));
+        load();
+        return sec;
+      }
+
+      /* ---------- 翻页模式 ---------- */
+      function renderFlip() {
+        const pane = $("pane");
+        pane.replaceChildren(episodeBlock(state.cur));
+        markRead(state.cur);
+        syncToc();
+        $("progress-bar").style.width = `${((state.cur + 1) / TOTAL) * 100}%`;
+        window.scrollTo(0, 0);
+        // 预取相邻话（只取数据进缓存，不动 DOM），让切话近乎瞬时
+        [1, -1].forEach((d) => {
+          const n = state.cur + d;
+          if (n >= 0 && n < TOTAL && !cache.has(`${n}:${state.fmt}`) && state.fmt === "svg") {
+            fetch(eps[n].svg)
+              .then((r) => r.text())
+              .then((t) => cache.set(`${n}:${state.fmt}`, { status: "ok", html: namespaceSvg(t, n) }))
+              .catch(() => { /* 预取失败不打扰用户，切过去时会看到错误卡并可重试 */ });
+          }
+        });
+        saveProgress();
+      }
+
+      function go(idx, scroll = true) {
+        state.cur = (idx + TOTAL) % TOTAL;
+        if (state.mode === "flip") {
+          renderFlip();
+        } else {
+          syncToc();
+          markRead(state.cur);
+          const target = document.querySelector(`#longView .ep-pane[data-i="${state.cur}"]`);
+          if (target && scroll) target.scrollIntoView({ behavior: "smooth", block: "start" });
+          saveProgress();
+        }
+      }
+
+      /* ---------- 长卷模式 ---------- */
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((en) => {
+            if (!en.isIntersecting) return;
+            const holder = en.target;
+            io.unobserve(holder);
+            const idx = Number(holder.dataset.i);
+            holder.replaceChildren(episodeBlock(idx));
+            markRead(idx);
+          });
+        },
+        { rootMargin: "600px 0px" },
+      );
+
+      function buildLong() {
+        const view = $("longView");
+        view.replaceChildren();
+        eps.forEach((e, idx) => {
+          const holder = document.createElement("div");
+          holder.className = "ep-holder";
+          holder.dataset.i = idx;
+          holder.innerHTML = `<div class="ep-loading">第 ${no(e)} 话待加载…</div>`;
+          view.appendChild(holder);
+          io.observe(holder);
+        });
+      }
+
+      function setMode(mode, silent = false) {
+        state.mode = mode;
+        document.body.classList.toggle("flip-mode", mode === "flip");
+        document.body.classList.toggle("long-mode", mode === "long");
+        $("flipView").hidden = mode !== "flip";
+        $("longView").hidden = mode !== "long";
+        syncModeControls();
+        if (mode === "long" && !$("longView").childElementCount) buildLong();
+        if (mode === "long" && !silent) {
+          const target = document.querySelector(`#longView .ep-pane[data-i="${state.cur}"], #longView .ep-holder[data-i="${state.cur}"]`);
+          if (target) target.scrollIntoView({ block: "start" });
+        }
+        if (mode === "flip" && !silent) renderFlip();
+        saveProgress();
+      }
+
+      function setFmt(fmt) {
+        state.fmt = fmt;
+        $("fmtSvg").classList.toggle("active", fmt === "svg");
+        $("fmtPng").classList.toggle("active", fmt === "png");
+        // 格式切换后重渲染当前可见内容（缓存按 idx:fmt 隔离，互不污染）
+        if (state.mode === "flip") renderFlip();
+        else
+          document.querySelectorAll("#longView .ep-holder").forEach((h) => {
+            const idx = Number(h.dataset.i);
+            const rendered = h.querySelector(".ep-pane");
+            if (rendered) {
+              h.replaceChildren();
+              io.observe(h);
+              void idx;
+            }
+          });
+        saveProgress();
+      }
+
+      function syncModeControls() {
+        $("modeFlip").classList.toggle("active", state.mode === "flip");
+        $("modeLong").classList.toggle("active", state.mode === "long");
+        $("fmtSvg").classList.toggle("active", state.fmt === "svg");
+        $("fmtPng").classList.toggle("active", state.fmt === "png");
+        document.body.classList.toggle("flip-mode", state.mode === "flip");
+        document.body.classList.toggle("long-mode", state.mode === "long");
+      }
+
+      /* ---------- 讲解稿抽屉 ---------- */
+      function openMd(idx) {
+        const e = eps[idx];
+        $("md-title").textContent = `第 ${no(e)} 话 讲解稿 · ${e.title}`;
+        $("md-download").href = e.md;
+        $("md-download").download = `${no(e)}-${e.id}.md`;
+        $("md-drawer").classList.add("open");
+        $("md-mask").style.display = "block";
+        const body = $("md-body");
+        if (mdCache.has(idx)) {
+          body.innerHTML = renderMd(mdCache.get(idx));
+          return;
+        }
+        body.innerHTML = `<div class="ep-loading">正在加载讲解稿…</div>`;
+        fetch(e.md)
+          .then((r) => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.text();
+          })
+          .then((text) => {
+            mdCache.set(idx, text);
+            body.innerHTML = renderMd(text);
+          })
+          .catch((err) => {
+            body.innerHTML =
+              `<div class="ep-error"><div class="err-icon">📝</div><h3>讲解稿加载失败</h3>` +
+              `<p>${escapeHtml(e.md)} —— ${escapeHtml(err.message)}</p>` +
+              `<a class="btn-retry" href="${e.md}" download>下载 .md 文件</a></div>`;
+          });
+      }
+
+      function closeMd() {
+        $("md-drawer").classList.remove("open");
+        $("md-mask").style.display = "none";
+      }
+
+      /* ---------- 事件绑定 ---------- */
+      $("start-btn").addEventListener("click", () => {
+        const p = loadProgress();
+        state.mode = p?.mode === "long" ? "long" : "flip";
+        state.fmt = p?.fmt === "png" ? "png" : "svg";
+        openReader(0);
+      });
+      $("home-btn").addEventListener("click", () => {
+        $("app").hidden = true;
+        $("cover").style.display = "";
+        state.started = false;
+        window.scrollTo(0, 0);
+      });
+      $("modeFlip").addEventListener("click", () => setMode("flip"));
+      $("modeLong").addEventListener("click", () => setMode("long"));
+      $("fmtSvg").addEventListener("click", () => setFmt("svg"));
+      $("fmtPng").addEventListener("click", () => setFmt("png"));
+      $("prev").addEventListener("click", () => go(state.cur - 1));
+      $("next").addEventListener("click", () => go(state.cur + 1));
+      $("sb-toggle").addEventListener("click", () => document.body.classList.toggle("sb-open"));
+      $("sb-mask").addEventListener("click", () => document.body.classList.remove("sb-open"));
+      $("md-close").addEventListener("click", closeMd);
+      $("md-mask").addEventListener("click", closeMd);
+      $("to-top").addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+
+      window.addEventListener(
+        "scroll",
+        () => {
+          if (!state.started) return;
+          const doc = document.documentElement;
+          const max = doc.scrollHeight - window.innerHeight;
+          const ratio = max > 0 ? window.scrollY / max : 0;
+          $("progress-bar").style.width = `${Math.min(100, Math.max(0, ratio * 100))}%`;
+          $("to-top").classList.toggle("show", window.scrollY > 800);
+          saveProgress();
+        },
+        { passive: true },
+      );
+
+      document.addEventListener("keydown", (ev) => {
+        if (!state.started) return;
+        const mdOpen = $("md-drawer").classList.contains("open");
+        if (ev.key === "Escape") {
+          if (mdOpen) closeMd();
+          else if (document.body.classList.contains("sb-open")) document.body.classList.remove("sb-open");
+          return;
+        }
+        if (ev.target instanceof HTMLElement && /INPUT|TEXTAREA/.test(ev.target.tagName)) return;
+        if (ev.key === "ArrowLeft" || ev.key === "PageUp") go(state.cur - 1);
+        else if (ev.key === "ArrowRight" || ev.key === "PageDown") go(state.cur + 1);
+        else if (ev.key === "Home") go(0);
+        else if (ev.key === "End") go(TOTAL - 1);
+        else if (ev.key === "m" || ev.key === "M") setMode(state.mode === "flip" ? "long" : "flip");
+        else if (ev.key === "f" || ev.key === "F") setFmt(state.fmt === "svg" ? "png" : "svg");
+      });
+
+      /* ---------- 启动 ---------- */
+      buildToc();
+      buildCover();
+    })();
+  </script>
+</body>
+
+</html>
