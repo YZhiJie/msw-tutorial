@@ -1,0 +1,95 @@
+<svg viewBox="0 0 1200 840" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif">
+  <title>第 14 话｜双令牌通关文牒：登录与刷新</title>
+  <desc>access token 短期通关，refresh token 换发且一用一换；重放旧牒立即失效。</desc>
+  <defs>
+    <linearGradient id="hdr-14" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4338CA"/>
+      <stop offset="1" stop-color="#6366F1"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="1200" height="840" rx="0" fill="#F8FAFC" stroke="none" stroke-width="0" opacity="1"/>
+  <rect x="0" y="0" width="1200" height="118" fill="url(#hdr-14)"/>
+  <circle cx="1130" cy="-40" r="120" fill="#ffffff" opacity=".07"/>
+  <circle cx="60" cy="140" r="90" fill="#6366F1" opacity=".05"/>
+  <text x="48" y="52" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="24" font-weight="700" fill="#C7D2FE" text-anchor="start" opacity="1">第 14 话</text>
+  <text x="48" y="96" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="38" font-weight="800" fill="#FFFFFF" text-anchor="start" opacity="1">双令牌通关文牒：登录与刷新</text>
+  <g transform="translate(940,30)">
+    <rect width="212" height="58" rx="29" fill="#FFFFFF" opacity=".16"/>
+    <text x="106" y="37" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="19" font-weight="700" fill="#fff" text-anchor="middle" opacity="1">第 6 章 · 高级特性</text>
+  </g>
+  
+      <rect x="80" y="180" width="300" height="250" rx="20" fill="#EEF2FF" stroke="#6366F1" stroke-width="2" opacity="1"/>
+      <text x="230" y="225" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="22" font-weight="800" fill="#4338CA" text-anchor="middle" opacity="1">① 登录</text>
+      <g><rect x="110" y="245" width="240" height="120" rx="14" fill="#0F172A" stroke="#1E293B" stroke-width="0" opacity="1"/><text x="130" y="281" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0">POST /api/auth/login</tspan></text><text x="130" y="307" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0">{ admin / admin1234 }</tspan></text></g>
+      <g transform="translate(180,560) scale(0.9)">
+    <ellipse cx="0" cy="150" rx="58" ry="12" fill="#0F172A" opacity=".08"/>
+    <rect x="-34" y="70" width="68" height="74" rx="22" fill="#6366F1"/>
+    <rect x="-12" y="72" width="24" height="30" rx="8" fill="#fff" opacity=".9"/>
+    <rect x="22" y="92" width="30" height="36" rx="8" fill="#F59E0B"/>
+    <rect x="22" y="92" width="30" height="12" rx="6" fill="#D97706"/>
+    <circle cx="37" cy="110" r="3" fill="#fff"/>
+    <circle cx="0" cy="34" r="34" fill="#F6D3B8"/>
+    <path d="M-36 28 a36 36 0 0 1 72 0 z" fill="#4338CA"/>
+    <rect x="-42" y="24" width="84" height="10" rx="5" fill="#4338CA"/>
+    <circle cx="-30" cy="52" r="4.5" fill="#1E293B"/>
+    <circle cx="30" cy="52" r="4.5" fill="#1E293B"/>
+    <path d="M-10 66 q10 8 20 0" fill="none" stroke="#1E293B" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="-40" cy="62" r="7" fill="#F6D3B8" opacity=".9"/>
+    <circle cx="40" cy="62" r="7" fill="#F6D3B8" opacity=".9"/>
+  </g>
+      <rect x="450" y="180" width="300" height="250" rx="20" fill="#CCFBF1" stroke="#14B8A6" stroke-width="2" opacity="1"/>
+      <text x="600" y="225" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="22" font-weight="800" fill="#0F766E" text-anchor="middle" opacity="1">② 通关</text>
+      <rect x="490" y="260" width="220" height="70" rx="12" fill="#fff" stroke="#0F766E" stroke-width="2" opacity="1"/>
+      <text x="600" y="303" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="15" font-weight="400" fill="#1E293B" text-anchor="middle" opacity="1">Authorization: Bearer</text>
+      <rect x="475" y="345" width="250" height="64" rx="12" fill="#FFE4E6" stroke="#E11D48" stroke-width="2" opacity="1"/>
+      <text x="600" y="371" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="13.5" font-weight="400" fill="#1E293B" text-anchor="middle" opacity="1">没牒？返回 401 状态码</text>
+      <text x="600" y="395" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="13.5" font-weight="400" fill="#1E293B" text-anchor="middle" opacity="1">并带 WWW-Authenticate 头</text>
+      <g transform="translate(600,560) scale(0.9)">
+    <ellipse cx="0" cy="150" rx="58" ry="12" fill="#0F172A" opacity=".08"/>
+    <rect x="-34" y="70" width="68" height="74" rx="22" fill="#0F766E"/>
+    <rect x="-12" y="72" width="24" height="34" rx="8" fill="#fff" opacity=".92"/>
+    <circle cx="0" cy="34" r="34" fill="#F6D3B8"/>
+    <path d="M-38 30 q38 -40 76 0 l6 12 h-88 z" fill="#0F766E"/>
+    <rect x="-44" y="36" width="88" height="9" rx="4.5" fill="#0F766E"/>
+    <g><line x1="9" y1="18" x2="16" y2="18" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/><line x1="6.3639610306789285" y1="24.36396103067893" x2="11.313708498984761" y2="29.31370849898476" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/><line x1="5.51091059616309e-16" y1="27" x2="9.797174393178826e-16" y2="34" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/><line x1="-6.363961030678928" y1="24.36396103067893" x2="-11.31370849898476" y2="29.31370849898476" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/><line x1="-9" y1="18" x2="-16" y2="18.000000000000004" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/><line x1="-6.363961030678929" y1="11.636038969321072" x2="-11.313708498984763" y2="6.686291501015241" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/><line x1="-1.6532731788489267e-15" y1="9" x2="-2.9391523179536475e-15" y2="2" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/><line x1="6.363961030678926" y1="11.63603896932107" x2="11.313708498984758" y2="6.686291501015237" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/><circle cx="0" cy="18" r="8" fill="#F59E0B"/><circle cx="0" cy="18" r="3.4" fill="#0F766E"/></g>
+    <circle cx="-30" cy="52" r="4.5" fill="#1E293B"/>
+    <circle cx="30" cy="52" r="4.5" fill="#1E293B"/>
+    <rect x="-13" y="63" width="26" height="7" rx="3.5" fill="#fff"/>
+    <circle cx="-40" cy="62" r="7" fill="#F6D3B8" opacity=".9"/>
+    <circle cx="40" cy="62" r="7" fill="#F6D3B8" opacity=".9"/>
+  </g>
+      <rect x="820" y="180" width="300" height="250" rx="20" fill="#FEF3C7" stroke="#D97706" stroke-width="2" opacity="1"/>
+      <text x="970" y="225" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="22" font-weight="800" fill="#D97706" text-anchor="middle" opacity="1">③ 轮换</text>
+      <g><rect x="840" y="245" width="260" height="120" rx="14" fill="#0F172A" stroke="#1E293B" stroke-width="0" opacity="1"/><text x="860" y="281" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0">POST /api/auth/refresh</tspan></text><text x="860" y="307" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0">旧 refreshToken 作废</tspan></text></g>
+      <g transform="translate(970,560) scale(0.9)">
+    <ellipse cx="0" cy="158" rx="64" ry="12" fill="#0F172A" opacity=".08"/>
+    <rect x="-40" y="78" width="80" height="72" rx="30" fill="#92603C"/>
+    <rect x="-18" y="92" width="36" height="26" rx="8" fill="#0F172A" opacity=".55"/>
+    <circle cx="-8" cy="105" r="4" fill="#34D399"/>
+    <circle cx="8" cy="105" r="4" fill="#F59E0B"/>
+    <circle cx="-30" cy="-4" r="15" fill="#92603C"/>
+    <circle cx="30" cy="-4" r="15" fill="#92603C"/>
+    <circle cx="-30" cy="-4" r="7" fill="#6B4226"/>
+    <circle cx="30" cy="-4" r="7" fill="#6B4226"/>
+    <circle cx="0" cy="24" r="38" fill="#92603C"/>
+    <ellipse cx="0" cy="38" rx="20" ry="15" fill="#E8C9A8"/>
+    <circle cx="-14" cy="20" r="5" fill="#1E293B"/>
+    <circle cx="14" cy="20" r="5" fill="#1E293B"/>
+    <ellipse cx="0" cy="33" rx="6" ry="4.5" fill="#1E293B"/>
+    <path d="M0 38 v7 M0 45 q-8 6 -15 1 M0 45 q8 6 15 1" fill="none" stroke="#1E293B" stroke-width="2.6" stroke-linecap="round"/>
+  </g>
+      <g>
+    <line x1="380" y1="320" x2="438" y2="320" stroke="#6366F1" stroke-width="3" stroke-linecap="round"/>
+    <polyline points="448,320 437.9560216565646,324.48536498365524 437.9560216565646,315.51463501634476" fill="none" stroke="#6366F1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+      <g>
+    <line x1="750" y1="320" x2="808" y2="320" stroke="#0F766E" stroke-width="3" stroke-linecap="round"/>
+    <polyline points="818,320 807.9560216565646,324.48536498365524 807.9560216565646,315.51463501634476" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+      <g><rect x="420" y="470" width="360" height="72" rx="18" fill="#FFFFFF" stroke="#E11D48" stroke-width="2.5" opacity="1"/><text x="442" y="504" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="16" font-weight="400" fill="#1E293B" text-anchor="start"><tspan x="442" dy="0">member 删除用户？一律返回 403 拒绝</tspan></text></g>
+      <g><rect x="120" y="690" width="960" height="46" rx="12" fill="#F1F5F9" stroke="none" stroke-width="0" opacity="1"/>
+  <text x="140" y="720" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="17" font-weight="500" fill="#64748B" text-anchor="start" opacity="1">鉴权守卫就是读请求头的纯函数 requireAuth(request)，REST 与 GraphQL 复用同一套。</text></g>
+  <rect x="0" y="794" width="1200" height="46" fill="#0F172A"/>
+  <text x="48" y="823" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="16" font-weight="600" fill="#94A3B8" text-anchor="start" opacity="1">信标驿站 · MSW 3 漫画剧场</text>
+  <text x="1152" y="823" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="16" font-weight="400" fill="#94A3B8" text-anchor="end" opacity="1">14 / 16</text>
+</svg>

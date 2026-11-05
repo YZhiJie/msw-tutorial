@@ -1,0 +1,49 @@
+<svg viewBox="0 0 1200 840" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif">
+  <title>第 05 话｜三间业务窗口：http / graphql / ws</title>
+  <desc>站长开设三种窗口，分别接待 REST、GraphQL 与 WebSocket 客人。</desc>
+  <defs>
+    <linearGradient id="hdr-05" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4338CA"/>
+      <stop offset="1" stop-color="#6366F1"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="1200" height="840" rx="0" fill="#F8FAFC" stroke="none" stroke-width="0" opacity="1"/>
+  <rect x="0" y="0" width="1200" height="118" fill="url(#hdr-05)"/>
+  <circle cx="1130" cy="-40" r="120" fill="#ffffff" opacity=".07"/>
+  <circle cx="60" cy="140" r="90" fill="#6366F1" opacity=".05"/>
+  <text x="48" y="52" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="24" font-weight="700" fill="#C7D2FE" text-anchor="start" opacity="1">第 5 话</text>
+  <text x="48" y="96" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="38" font-weight="800" fill="#FFFFFF" text-anchor="start" opacity="1">三间业务窗口：http / graphql / ws</text>
+  <g transform="translate(940,30)">
+    <rect width="212" height="58" rx="29" fill="#FFFFFF" opacity=".16"/>
+    <text x="106" y="37" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="19" font-weight="700" fill="#fff" text-anchor="middle" opacity="1">第 3 章 · 核心 API</text>
+  </g>
+  
+      <rect x="80" y="200" width="320" height="420" rx="22" fill="#EEF2FF" stroke="#6366F1" stroke-width="2" opacity="1"/>
+      <g><rect x="110" y="230" width="94" height="32" rx="16" fill="#6366F1" stroke="none" stroke-width="0" opacity="1"/><text x="123" y="252" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="17" font-weight="700" fill="#fff" text-anchor="start" opacity="1">http</text></g>
+      <text x="240" y="310" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="24" font-weight="800" fill="#4338CA" text-anchor="middle" opacity="1">REST 窗口</text>
+      <g><rect x="110" y="340" width="260" height="130" rx="14" fill="#0F172A" stroke="#1E293B" stroke-width="0" opacity="1"/><text x="130" y="376" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0"><tspan fill="#FCD34D">http.get</tspan>('*/api/users',</tspan></text><text x="130" y="402" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0">  () =&gt; HttpResponse</tspan></text><text x="130" y="428" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0">    .json([...]))</tspan></text></g>
+      <text x="240" y="515" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="16" font-weight="400" fill="#64748B" text-anchor="middle" opacity="1">GET · POST · PUT</text>
+      <text x="240" y="550" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="16" font-weight="400" fill="#64748B" text-anchor="middle" opacity="1">PATCH · DELETE</text>
+      <rect x="440" y="200" width="320" height="420" rx="22" fill="#CCFBF1" stroke="#14B8A6" stroke-width="2" opacity="1"/>
+      <g><rect x="470" y="230" width="213" height="32" rx="16" fill="#0F766E" stroke="none" stroke-width="0" opacity="1"/><text x="483" y="252" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="17" font-weight="700" fill="#fff" text-anchor="start" opacity="1">msw/graphql</text></g>
+      <text x="600" y="310" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="24" font-weight="800" fill="#0F766E" text-anchor="middle" opacity="1">GraphQL 窗口</text>
+      <g><rect x="455" y="340" width="290" height="150" rx="14" fill="#0F172A" stroke="#1E293B" stroke-width="0" opacity="1"/><text x="475" y="376" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0"><tspan fill="#C4B5FD">const</tspan> gql = <tspan fill="#FCD34D">graphql.link</tspan>(</tspan></text><text x="475" y="402" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0">  '*/graphql')</tspan></text><text x="475" y="428" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0">gql.query('ListUsers',</tspan></text><text x="475" y="454" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0">  ({ variables }) =&gt; ...)</tspan></text></g>
+      <text x="600" y="540" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="16" font-weight="400" fill="#0F766E" text-anchor="middle" opacity="1">单端点 · 按操作名分发</text>
+      <text x="600" y="572" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="16" font-weight="400" fill="#0F766E" text-anchor="middle" opacity="1">{ data } / { errors } 信封</text>
+      <rect x="800" y="200" width="320" height="420" rx="22" fill="#FEF3C7" stroke="#D97706" stroke-width="2" opacity="1"/>
+      <g><rect x="830" y="230" width="128" height="32" rx="16" fill="#D97706" stroke="none" stroke-width="0" opacity="1"/><text x="843" y="252" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="17" font-weight="700" fill="#fff" text-anchor="start" opacity="1">msw/ws</text></g>
+      <text x="960" y="310" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="24" font-weight="800" fill="#D97706" text-anchor="middle" opacity="1">WebSocket 窗口</text>
+      <g><rect x="830" y="340" width="260" height="150" rx="14" fill="#0F172A" stroke="#1E293B" stroke-width="0" opacity="1"/><text x="850" y="376" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0"><tspan fill="#C4B5FD">const</tspan> chat = <tspan fill="#FCD34D">ws.link</tspan>(</tspan></text><text x="850" y="402" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0">  'ws://*/ws/chat')</tspan></text><text x="850" y="428" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0">chat.addEventListener(</tspan></text><text x="850" y="454" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="17" xml:space="preserve"><tspan fill="#E2E8F0">  'connection', ...)</tspan></text></g>
+      <g fill="none" stroke="#14B8A6" stroke-width="4" stroke-linecap="round">
+    <path d="M950 560 a10 10 0 0 1 20 0"/>
+    <path d="M938 552 a22 22 0 0 1 44 0" opacity=".7"/>
+    <path d="M924 542 a36 36 0 0 1 72 0" opacity=".4"/>
+    <circle cx="960" cy="562" r="5" fill="#14B8A6" stroke="none"/>
+  </g>
+      <text x="960" y="600" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="15" font-weight="400" fill="#D97706" text-anchor="middle" opacity="1">v3 原生支持，无需 mock-socket</text>
+      <g><rect x="120" y="690" width="960" height="46" rx="12" fill="#F1F5F9" stroke="none" stroke-width="0" opacity="1"/>
+  <text x="140" y="720" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="17" font-weight="500" fill="#64748B" text-anchor="start" opacity="1">MSW 3 按协议拆分入口：graphql 在 msw/graphql，ws 在 msw/ws（需 peer 依赖 graphql）。</text></g>
+  <rect x="0" y="794" width="1200" height="46" fill="#0F172A"/>
+  <text x="48" y="823" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="16" font-weight="600" fill="#94A3B8" text-anchor="start" opacity="1">信标驿站 · MSW 3 漫画剧场</text>
+  <text x="1152" y="823" font-family="'SF Mono','Menlo','Consolas','Courier New',monospace" font-size="16" font-weight="400" fill="#94A3B8" text-anchor="end" opacity="1">5 / 16</text>
+</svg>
